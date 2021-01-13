@@ -1,6 +1,6 @@
 # BrowserScan
 
-BrowserScan is a Windows tool that looks for Chromium based browser installs, loots relevant data, decrypts data it can, and gets everything ready for exfil. This tool was designed for penetration testing environments where you have a user login shell and are looking to either escalate privileges or gain credentials on other systems.
+BrowserScan is a Windows tool that looks for Chromium based browser installs, loots relevant data, decrypts data it can, and gets everything ready for exfil. This tool was designed for penetration testing environments where you have a user login shell and are looking to either escalate privileges or gain credentials on other systems. This tool works on modern Chromium browsers that use more than plain DPAPI encryption to protect data.
 
 Chromium based browsers include Chromium itself (which probably has very low install base) as well as:
 
