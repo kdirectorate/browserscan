@@ -56,7 +56,7 @@ Some virus scanners are currently mistakenly flagging pyinstaller created execut
 
 There are no command line arguments, BrowserScan is just going to do it's thing looking around the current user's AppData\Local directory. Output will show up in ".\browser-loot". Your output will probably look similar to this (except the user probably doesn't have 3 browsers installed):
 
-![example](E:\nextCloud\pentest\payloads\windows\browserscan\example.png)
+![example](example.png)
 
 The "Error decrypting password" messages may be caused by a user having their password reset by an administrator. That is a rare event, but because of how the passwords are handled by Chromium if the password is reset by the Admin, then all of the passwords stored with the old password are undecryptable.
 
