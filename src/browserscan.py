@@ -142,7 +142,7 @@ class ChromiumScanner:
             # Decrypt the key using Windows encryption
             # This will not work if the user's password was changed by an
             # administrator. 
-            plaintext = win32crypt.CryptUnprotectData(ciphertext)[1].decode("UTF-8")
+            plaintext = win32crypt.CryptUnprotectData(ciphertext[ChromiumScanner.DPAPI_PREFIX]:)[1].decode("UTF-8")
 
         return plaintext
 
