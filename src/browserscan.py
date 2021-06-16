@@ -35,6 +35,7 @@ class ChromiumScanner:
     # Necessary values copied from the components/os_crypt_win.cc Chromium
     # source code.
     CHROME_ENC_VER10_PREFIX = b"v10"
+    CHROME_ENC_VER10_PREFIX16 = "v10".encode("UTF-16")
     CHROME_NONCE_LENGTH = int(96 / 8)
     CHROME_OSCRYPT_ENCRYPTEDKEYPREF_NAME = "os_crypt.encrypted_key"
     CHROME_DPAPI_PREFIX = b"DPAPI"
@@ -119,8 +120,14 @@ class ChromiumScanner:
         if "chromekey" in browser:
             chromekey = browser["chromekey"]
 
+        
+        if not (type(ciphertext) is bytes):
+            ciphertext = bytes(ciphertext.encode("UTF-8"))
+
         # If this is a Chrome v10 encrypted password
-        if ciphertext.startswith(ChromiumScanner.CHROME_ENC_VER10_PREFIX):
+        if ciphertext.startswith(ChromiumScanner.CHROME_ENC_VER10_PREFIX) or \
+            ciphertext.startswith(ChromiumScanner.CHROME_ENC_VER10_PREFIX16) :
+
             # Strip the version prefix
             ciphertext = ciphertext[len(ChromiumScanner.CHROME_ENC_VER10_PREFIX):]
             nonce = ciphertext[:ChromiumScanner.CHROME_NONCE_LENGTH]
@@ -133,7 +140,7 @@ class ChromiumScanner:
             ciphertext = ciphertext[:-16]
             
             cipher = AES.new(chromekey,AES.MODE_GCM,nonce=nonce)
-            plaintext = cipher.decrypt(ciphertext).decode("UTF-8")
+            plaintext = str(cipher.decrypt(ciphertext))
         
         # Older versions of Chrome on windows did not use an internally generated
         # key, they just called DPAPI. DPAPI uses its own prefix to identify things it 
@@ -142,7 +149,12 @@ class ChromiumScanner:
             # Decrypt the key using Windows encryption
             # This will not work if the user's password was changed by an
             # administrator. 
-            plaintext = win32crypt.CryptUnprotectData(ciphertext[ChromiumScanner.DPAPI_PREFIX]:)[1].decode("UTF-8")
+            try:
+                plaintext = win32crypt.CryptUnprotectData(ciphertext[len(ChromiumScanner.DPAPI_PREFIX):])[1].decode("UTF-8")
+            except:
+                pass
+        else:
+            print(" [-] Unexpected error: Can't determine encryption type %s." % str(cyphertext))
 
         return plaintext
 
@@ -275,6 +287,7 @@ class ChromiumScanner:
             print(" [-] Unable to open Cookie file; expected a SQLite3 database.")
             return None
             
+        db.text_factory = lambda b: b.decode(errors = 'ignore')
         cursor = db.cursor()
         cursor.execute("SELECT creation_utc, host_key, name, value, path, encrypted_value FROM cookies")
         data = cursor.fetchall()
